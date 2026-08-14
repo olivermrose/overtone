@@ -5,4 +5,6 @@ export const variables = defineEnvVars({
 	ORIGIN: { schema: (input) => input ?? "" },
 	BETTER_AUTH_SECRET: { schema: (input) => input ?? "" },
 	DATABASE_URL: { schema: (input) => input ?? "" },
+	SPOTIFY_CLIENT_ID: { schema: (input) => input ?? "" },
+	SPOTIFY_CLIENT_SECRET: { schema: (input) => input ?? "" },
 });

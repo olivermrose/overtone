@@ -1,1 +1,8 @@
 @import "tailwindcss";
+
+@theme {
+	--font-mono: var(--font-geist-pixel-square);
+
+	--color-black: #121212;
+	--color-spotify: oklch(76.973% 0.21234 148.69);
+}

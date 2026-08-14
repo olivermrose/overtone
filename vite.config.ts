@@ -10,6 +10,8 @@ export default defineConfig({
 	fmt: {
 		tabWidth: 4,
 		useTabs: true,
+		svelte: true,
+		sortTailwindcss: true,
 	},
 	lint: {
 		jsPlugins: [{ name: "vite-plus", specifier: "vite-plus/oxlint-plugin" }],
@@ -19,7 +21,13 @@ export default defineConfig({
 	plugins: lazyPlugins(() => [
 		tailwindcss(),
 		sveltekit({
+			experimental: {
+				remoteFunctions: true,
+			},
 			compilerOptions: {
+				experimental: {
+					async: true,
+				},
 				// Force runes mode for the project, except for libraries. Can be removed in svelte 6.
 				runes: ({ filename }) =>
 					filename.split(/[/\\]/).includes("node_modules") ? undefined : true,

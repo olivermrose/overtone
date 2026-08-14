@@ -1,14 +1,21 @@
 services:
-    db:
-        image: postgres
-        restart: always
-        ports:
-            - 5432:5432
+    postgres:
+        image: postgres:18-alpine
+        container_name: rankify
+        restart: unless-stopped
         environment:
-            POSTGRES_USER: root
+            POSTGRES_USER: postgres
             POSTGRES_PASSWORD: postgres
-            POSTGRES_DB: local
+            POSTGRES_DB: postgres
+        ports:
+            - "5432:5432"
         volumes:
-            - pgdata:/var/lib/postgresql
+            - rankify-pgdata:/var/lib/postgresql
+        healthcheck:
+            test: ["CMD-SHELL", "pg_isready -U postgres -d postgres"]
+            interval: 3s
+            timeout: 3s
+            retries: 10
+
 volumes:
-    pgdata:
+    rankify-pgdata:

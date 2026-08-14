@@ -21,6 +21,11 @@
 		"db:studio": "drizzle-kit studio",
 		"auth:schema": "auth generate --config src/lib/server/auth.ts --output src/lib/server/db/auth.schema.ts --yes"
 	},
+	"dependencies": {
+		"geist-svelte": "^1.0.2",
+		"runed": "^0.37.1",
+		"valibot": "^1.4.2"
+	},
 	"devDependencies": {
 		"@sveltejs/adapter-auto": "next",
 		"@sveltejs/kit": "next",

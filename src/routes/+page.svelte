@@ -1,2 +1,13 @@
-<h1>Welcome to SvelteKit</h1>
-<p>Visit <a href="https://svelte.dev/docs/kit">svelte.dev/docs/kit</a> to read the documentation</p>
+<script lang="ts">
+	import { spotifySignIn } from "#lib/auth-client";
+	import ArtistSearch from "#lib/components/ArtistSearch.svelte";
+	import { getUser } from "#lib/spotify.remote";
+</script>
+
+{const user = $derived(await getUser())}
+
+{#if !user}
+	<button type="button" onclick={() => spotifySignIn()}> sign in </button>
+{:else}
+	<ArtistSearch />
+{/if}

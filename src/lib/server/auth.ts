@@ -1,4 +1,9 @@
-import { ORIGIN, BETTER_AUTH_SECRET } from "$app/env/private";
+import {
+	ORIGIN,
+	BETTER_AUTH_SECRET,
+	SPOTIFY_CLIENT_ID,
+	SPOTIFY_CLIENT_SECRET,
+} from "$app/env/private";
 import { betterAuth } from "better-auth/minimal";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { sveltekitCookies } from "better-auth/svelte-kit";
@@ -9,7 +14,13 @@ export const auth = betterAuth({
 	baseURL: ORIGIN,
 	secret: BETTER_AUTH_SECRET,
 	database: drizzleAdapter(db, { provider: "pg" }),
-	emailAndPassword: { enabled: true },
+	socialProviders: {
+		spotify: {
+			clientId: SPOTIFY_CLIENT_ID,
+			clientSecret: SPOTIFY_CLIENT_SECRET,
+			scopes: ["playlist-modify-public", "playlist-modify-private"],
+		},
+	},
 	plugins: [
 		sveltekitCookies(getRequestEvent), // make sure this is the last plugin in the array
 	],
