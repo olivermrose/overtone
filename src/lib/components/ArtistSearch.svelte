@@ -1,15 +1,30 @@
 <script lang="ts">
+	import { createList } from "#lib/list.remote";
 	import { searchArtists, type Artist } from "#lib/spotify.remote";
+	import { goto } from "$app/navigation";
 	import { Debounced } from "runed";
 
 	let query = $state("");
+	let busy = $state(false);
 
 	const search = new Debounced(async () => {
 		return query ? await searchArtists(query) : [];
 	}, 300);
 
 	async function select(artist: Artist) {
-		//
+		busy = true;
+
+		try {
+			const { slug } = await createList({
+				artistId: artist.id,
+				artistName: artist.name,
+				artistImage: artist.image,
+			});
+
+			await goto(`/list/${slug}`);
+		} finally {
+			busy = false;
+		}
 	}
 </script>
 
@@ -35,8 +50,9 @@
 			{#each artists as artist (artist.id)}
 				<li>
 					<button
-						class="flex w-full items-center gap-2 px-3 py-2 hover:bg-neutral-900"
+						class="flex w-full items-center gap-2 px-3 py-2 hover:bg-neutral-900 disabled:opacity-50"
 						type="button"
+						disabled={busy}
 						onclick={() => select(artist)}
 					>
 						{#if artist.image}
