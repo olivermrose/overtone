@@ -22,6 +22,8 @@
 		"auth:schema": "auth generate --config src/lib/server/auth.ts --output src/lib/server/db/auth.schema.ts --yes"
 	},
 	"dependencies": {
+		"@dnd-kit/helpers": "^0.5.0",
+		"@dnd-kit/svelte": "^0.5.0",
 		"geist-svelte": "^1.0.2",
 		"nanoid": "^6.0.1",
 		"runed": "^0.37.1",
