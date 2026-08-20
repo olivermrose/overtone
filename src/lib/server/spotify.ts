@@ -17,18 +17,14 @@ export async function getAlbumTracks(ids: string[], groups: Record<string, strin
 			const artworkUrl = album.images.at(-1)?.url ?? null;
 			const items = album.tracks.items;
 
-			let next = album.tracks.next;
+			let offset = album.tracks.offset + items.length;
 
-			while (next) {
-				const page = await spotify.albums.tracks(
-					album.id,
-					"US",
-					50,
-					album.tracks.offset + album.tracks.limit,
-				);
+			while (items.length < album.tracks.total) {
+				const page = await spotify.albums.tracks(album.id, "US", 50, offset);
+				if (page.items.length === 0) break;
 
 				items.push(...page.items);
-				next = page.next;
+				offset += page.items.length;
 			}
 
 			for (const track of items) {
