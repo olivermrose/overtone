@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { addTracks } from "#lib/list.remote";
 	import { getAlbums } from "#lib/spotify.remote";
 
 	interface Props {
@@ -9,7 +10,8 @@
 	const { slug, artistId }: Props = $props();
 
 	let busy = $state(false);
-	let selected = $state.raw<readonly string[]>([]);
+	let selected = $state.raw<string[]>([]);
+	let added = $state(0);
 
 	function toggle(id: string) {
 		selected = selected.includes(id) ? selected.filter((s) => s !== id) : [...selected, id];
@@ -21,7 +23,8 @@
 		busy = true;
 
 		try {
-			//
+			added = await addTracks({ slug, ids: selected });
+			selected = [];
 		} finally {
 			busy = false;
 		}
@@ -53,7 +56,7 @@
 		{:else}
 			<ul>
 				{#each albums as album (album.id)}
-					{const picked = selected.includes(album.id)}
+					{const picked = $derived(selected.includes(album.id))}
 
 					<li>
 						<button
@@ -65,7 +68,7 @@
 						>
 							<span
 								class={[
-									"grid size-4 shrink-0 place-items-center border",
+									"grid size-3 shrink-0 place-items-center border",
 									picked ? "border-spotify bg-spotify" : "border-neutral-800",
 								]}
 							>
@@ -94,7 +97,17 @@
 		{/if}
 	</div>
 
-	<footer class="flex items-center gap-3 border-t border-neutral-800 px-4 py-3 text-xs">
+	<footer
+		class="flex w-full items-center justify-between gap-3 border-t border-neutral-800 px-4 py-3 text-xs"
+	>
+		<p class="flex-1 text-neutral-400">
+			{#if added > 0}
+				Added {added}
+			{:else}
+				{selected.length} selected
+			{/if}
+		</p>
+
 		<button
 			class="bg-spotify px-4 py-1.5 font-bold text-black uppercase disabled:cursor-not-allowed disabled:bg-neutral-800 disabled:text-neutral-400"
 			type="button"

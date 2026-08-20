@@ -4,7 +4,8 @@ import * as v from "valibot";
 import { nanoid } from "nanoid";
 import { db } from "./server/db";
 import { tierList, tierListTrack } from "./server/db/schema";
-import { asc, desc, eq, inArray } from "drizzle-orm";
+import { and, asc, desc, eq, inArray } from "drizzle-orm";
+import { getAlbumTracks } from "./server/spotify";
 
 export type List = (ReturnType<Awaited<typeof getList>>["current"] & {})["list"];
 
@@ -90,5 +91,91 @@ export const createList = command(
 			.returning({ slug: tierList.slug });
 
 		return { slug };
+	},
+);
+
+export const addTracks = command(
+	v.object({ slug: v.string(), ids: v.array(v.string()) }),
+	async (data) => {
+		const [list] = await db
+			.select()
+			.from(tierList)
+			.where(eq(tierList.slug, data.slug))
+			.limit(1);
+
+		if (!list) {
+			error(404, "Tier list not found");
+		}
+
+		const trackOrder = new Map(data.ids.map((id, i) => [id, i]));
+		const tracks = await getAlbumTracks(data.ids);
+
+		tracks.sort(
+			(a, b) =>
+				(trackOrder.get(a.albumId) ?? 0) - (trackOrder.get(b.albumId) ?? 0) ||
+				a.discNumber - b.discNumber ||
+				a.trackNumber - b.trackNumber,
+		);
+
+		const existing = await db
+			.select({ name: tierListTrack.name, position: tierListTrack.position })
+			.from(tierListTrack)
+			.where(eq(tierListTrack.listId, list.id));
+
+		const known = new Set(existing.map((e) => e.name));
+		let position = existing.reduce((max, row) => Math.max(max, row.position), -1) + 1;
+
+		const rows = tracks
+			.filter((t) => !known.has(t.name))
+			.map((t) => ({
+				tier: "pool",
+				listId: list.id,
+				trackId: t.trackId,
+				uri: t.uri,
+				name: t.name,
+				normalizedName: t.name,
+				albumId: t.albumId,
+				albumName: t.albumName,
+				albumReleaseDate: t.albumReleaseDate,
+				artworkUrl: t.artworkUrl,
+				durationMs: t.durationMs,
+				position: position++,
+			}));
+
+		if (rows.length > 0) {
+			await db.insert(tierListTrack).values(rows);
+
+			await db
+				.update(tierList)
+				.set({ updatedAt: new Date() })
+				.where(eq(tierList.id, list.id));
+		}
+
+		await getList(data.slug).refresh();
+
+		return rows.length;
+	},
+);
+
+export const removeTrack = command(
+	v.object({ slug: v.string(), trackId: v.string() }),
+	async (data) => {
+		const [list] = await db
+			.select()
+			.from(tierList)
+			.where(eq(tierList.slug, data.slug))
+			.limit(1);
+
+		if (!list) {
+			error(404, "Tier list not found");
+		}
+
+		await db
+			.delete(tierListTrack)
+			.where(and(eq(tierListTrack.listId, list.id), eq(tierListTrack.id, data.trackId)));
+
+		await db.update(tierList).set({ updatedAt: new Date() }).where(eq(tierList.id, list.id));
+
+		await getList(data.slug).refresh();
 	},
 );

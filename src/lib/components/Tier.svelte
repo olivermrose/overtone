@@ -39,7 +39,7 @@
 
 	<div
 		class={[
-			"flex min-h-20 flex-1 flex-wrap content-start gap-1 p-1 transition-colors",
+			"flex min-h-26 flex-1 flex-wrap content-start gap-1 p-1 transition-colors",
 			droppable.isDropTarget && "bg-neutral-900",
 		]}
 		{@attach droppable.attach}

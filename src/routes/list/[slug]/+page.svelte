@@ -23,9 +23,9 @@
 	<header class="flex flex-wrap items-center gap-3 border-b border-neutral-800 p-4">
 		{#if list.artistImage}
 			<img
+				class="aspect-square size-10 object-cover"
 				src={list.artistImage}
 				alt={list.artistName}
-				class="aspect-square size-10 object-cover"
 			/>
 		{/if}
 

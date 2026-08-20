@@ -5,3 +5,49 @@ export const spotify = SpotifyApi.withClientCredentials(SPOTIFY_CLIENT_ID, SPOTI
 	"playlist-modify-public",
 	"playlist-modify-private",
 ]);
+
+export async function getAlbumTracks(ids: string[], groups: Record<string, string> = {}) {
+	const tracks = [];
+
+	for (let i = 0; i < ids.length; i += 20) {
+		const chunk = ids.slice(i, i + 20);
+		const albums = await spotify.albums.get(chunk, "US");
+
+		for (const album of albums) {
+			const artworkUrl = album.images.at(-1)?.url ?? null;
+			const items = album.tracks.items;
+
+			let next = album.tracks.next;
+
+			while (next) {
+				const page = await spotify.albums.tracks(
+					album.id,
+					"US",
+					50,
+					album.tracks.offset + album.tracks.limit,
+				);
+
+				items.push(...page.items);
+				next = page.next;
+			}
+
+			for (const track of items) {
+				tracks.push({
+					trackId: track.id,
+					uri: track.uri,
+					name: track.name,
+					albumId: album.id,
+					albumName: album.name,
+					albumGroup: groups[album.id] ?? album.album_type,
+					albumReleaseDate: album.release_date,
+					artworkUrl,
+					durationMs: track.duration_ms,
+					trackNumber: track.track_number,
+					discNumber: track.disc_number,
+				});
+			}
+		}
+	}
+
+	return tracks;
+}

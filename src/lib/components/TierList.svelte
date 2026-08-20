@@ -15,7 +15,7 @@
 	import Tier from "./Tier.svelte";
 	import TierPool from "./TierPool.svelte";
 	import AlbumPicker from "./AlbumPicker.svelte";
-	import type { List } from "#lib/list.remote";
+	import { removeTrack, type List } from "#lib/list.remote";
 
 	interface Props {
 		list: List;
@@ -43,6 +43,10 @@
 	function resolveTracks(ids: string[]) {
 		return ids.map((id) => tracksById.get(id)).filter((t) => typeof t !== "undefined");
 	}
+
+	async function remove(id: string) {
+		await removeTrack({ slug: list.slug, trackId: id });
+	}
 </script>
 
 <DragDropProvider
@@ -55,11 +59,11 @@
 >
 	<div class="flex-1">
 		{#each "SABCDF" as tier}
-			<Tier {tier} tracks={resolveTracks(groups[tier])} onremove={() => {}} />
+			<Tier {tier} tracks={resolveTracks(groups[tier])} onremove={remove} />
 		{/each}
 	</div>
 
-	<TierPool tracks={resolveTracks(groups.pool)} onremove={() => {}} />
+	<TierPool tracks={resolveTracks(groups.pool)} onremove={remove} />
 </DragDropProvider>
 
 <AlbumPicker slug={list.slug} artistId={list.artistId} />
