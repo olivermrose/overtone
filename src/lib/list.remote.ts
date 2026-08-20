@@ -6,6 +6,8 @@ import { db } from "./server/db";
 import { tierList, tierListTrack } from "./server/db/schema";
 import { asc, eq } from "drizzle-orm";
 
+export type List = (ReturnType<Awaited<typeof getList>>["current"] & {})["list"];
+
 export const getList = query(v.string(), async (slug) => {
 	const event = getRequestEvent();
 

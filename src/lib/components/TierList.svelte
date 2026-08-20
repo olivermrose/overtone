@@ -1,4 +1,12 @@
 <script lang="ts" module>
+	export interface Track {
+		id: string;
+		name: string;
+		albumName: string;
+		artworkUrl: string | null;
+		tier: string;
+		position: number;
+	}
 </script>
 
 <script lang="ts">
@@ -6,24 +14,15 @@
 	import { move } from "@dnd-kit/helpers";
 	import Tier from "./Tier.svelte";
 	import TierPool from "./TierPool.svelte";
-	import { setTierListContext, type Track } from "./context";
+	import AlbumPicker from "./AlbumPicker.svelte";
+	import type { List } from "#lib/list.remote";
 
 	interface Props {
+		list: List;
 		tracks: Track[];
 	}
 
-	const { tracks }: Props = $props();
-
-	const context = $state({
-		get tracks() {
-			return tracks;
-		},
-		onremove: async () => {
-			//
-		},
-	});
-
-	setTierListContext(context);
+	const { list, tracks }: Props = $props();
 
 	const tracksById = $derived(new Map(tracks.map((t) => [t.id, t])));
 	let groups = $derived(group(tracks));
@@ -56,9 +55,11 @@
 >
 	<div class="flex-1">
 		{#each "SABCDF" as tier}
-			<Tier {tier} />
+			<Tier {tier} tracks={resolveTracks(groups[tier])} onremove={() => {}} />
 		{/each}
 	</div>
 
-	<TierPool />
+	<TierPool tracks={resolveTracks(groups.pool)} onremove={() => {}} />
 </DragDropProvider>
+
+<AlbumPicker slug={list.slug} artistId={list.artistId} />

@@ -27,3 +27,36 @@ export const searchArtists = query(v.pipe(v.string(), v.trim()), async (q) => {
 		image: artist.images.at(-1)?.url ?? null,
 	}));
 });
+
+export interface Album {
+	id: string;
+	name: string;
+	group: string;
+	releaseDate: string;
+	artworkUrl: string | null;
+	trackCount: number;
+}
+
+export const getAlbums = query(v.string(), async (artistId) => {
+	const albums = [];
+	let next: string | null = null;
+
+	do {
+		const response = await spotify.artists.albums(artistId, "album,single", "US", 50);
+
+		for (const album of response.items) {
+			albums.push({
+				id: album.id,
+				name: album.name,
+				group: album.album_type,
+				releaseDate: album.release_date,
+				artworkUrl: album.images.at(-1)?.url ?? null,
+				trackCount: album.total_tracks,
+			});
+		}
+
+		next = response.next;
+	} while (next);
+
+	return albums.sort((a, b) => b.releaseDate.localeCompare(a.releaseDate));
+});

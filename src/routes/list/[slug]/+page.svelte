@@ -56,5 +56,5 @@
 		</div>
 	</header>
 
-	<TierList {tracks} />
+	<TierList {list} {tracks} />
 </div>

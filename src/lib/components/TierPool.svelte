@@ -1,15 +1,14 @@
 <script lang="ts">
 	import { createDroppable } from "@dnd-kit/svelte";
-	import { useTierList } from "./context";
-	import Track from "./Track.svelte";
+	import TrackComponent from "./Track.svelte";
+	import type { Track } from "./TierList.svelte";
 
 	interface Props {
-		onpick?: () => void;
+		tracks: Track[];
+		onremove: (id: string) => void;
 	}
 
-	const { onpick }: Props = $props();
-
-	const tierList = useTierList();
+	const { tracks, onremove }: Props = $props();
 
 	const droppable = createDroppable({
 		id: "pool",
@@ -23,7 +22,7 @@
 		<span
 			class="text-neutral-400 uppercase group-hover:text-white before:content-['▲_'] in-open:before:content-['▼_']"
 		>
-			Pool [{tierList.tracks.length}]
+			Pool [{tracks.length}]
 		</span>
 
 		<span class="flex-1 truncate">unranked</span>
@@ -31,7 +30,8 @@
 		<button
 			class="bg-spotify hover:bg-spotify/85 px-3 py-1 font-bold text-black uppercase"
 			type="button"
-			onclick={onpick}
+			command="show-modal"
+			commandfor="album-picker"
 		>
 			+ Add Tracks
 		</button>
@@ -44,8 +44,8 @@
 		]}
 		{@attach droppable.attach}
 	>
-		{#each tierList.tracks as track, i (track.id)}
-			<Track {track} group="pool" index={i} onremove={tierList.onremove} />
+		{#each tracks as track, i (track.id)}
+			<TrackComponent {track} group="pool" index={i} {onremove} />
 		{:else}
 			<span class="self-center px-2 text-xs text-neutral-400">no tracks added</span>
 		{/each}

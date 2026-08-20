@@ -1,15 +1,15 @@
 <script lang="ts">
 	import { createDroppable } from "@dnd-kit/svelte";
-	import { useTierList } from "./context";
-	import Track from "./Track.svelte";
+	import TrackComponent from "./Track.svelte";
+	import type { Track } from "./TierList.svelte";
 
 	interface Props {
 		tier: string;
+		tracks: Track[];
+		onremove: (id: string) => void;
 	}
 
-	const { tier }: Props = $props();
-
-	const tierList = useTierList();
+	const { tier, tracks, onremove }: Props = $props();
 
 	const TIER_COLORS: Record<string, string> = {
 		S: "#ff7f7f",
@@ -44,8 +44,8 @@
 		]}
 		{@attach droppable.attach}
 	>
-		{#each tierList.tracks as track, i (track.id)}
-			<Track {track} group={tier} index={i} onremove={tierList.onremove} />
+		{#each tracks as track, i (track.id)}
+			<TrackComponent {track} group={tier} index={i} {onremove} />
 		{/each}
 	</div>
 </div>
