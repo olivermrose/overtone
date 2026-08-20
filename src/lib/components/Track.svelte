@@ -1,6 +1,6 @@
 <script lang="ts">
-	import type { Track } from "./context";
 	import { createSortable } from "@dnd-kit/svelte/sortable";
+	import type { Track } from "./TierList.svelte";
 
 	interface Props {
 		track: Track;
