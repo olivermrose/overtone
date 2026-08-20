@@ -4,8 +4,9 @@ import * as v from "valibot";
 import { nanoid } from "nanoid";
 import { db } from "./server/db";
 import { tierList, tierListTrack } from "./server/db/schema";
-import { and, asc, desc, eq, inArray } from "drizzle-orm";
+import { and, asc, desc, eq, inArray, sql } from "drizzle-orm";
 import { getAlbumTracks } from "./server/spotify";
+import { GROUPS } from "#lib";
 
 export type List = (ReturnType<Awaited<typeof getList>>["current"] & {})["list"];
 
@@ -91,6 +92,69 @@ export const createList = command(
 			.returning({ slug: tierList.slug });
 
 		return { slug };
+	},
+);
+
+export const saveList = command(
+	v.object({
+		slug: v.string(),
+		groups: v.record(v.string(), v.array(v.string())),
+	}),
+	async (data) => {
+		const [list] = await db
+			.select()
+			.from(tierList)
+			.where(eq(tierList.slug, data.slug))
+			.limit(1);
+
+		if (!list) {
+			error(404, "Tier list not found");
+		}
+
+		const owned = await db
+			.select({ id: tierListTrack.id })
+			.from(tierListTrack)
+			.where(eq(tierListTrack.listId, list.id));
+
+		const ownedIds = new Set(owned.map((row) => row.id));
+		const updates: { id: string; tier: string; position: number }[] = [];
+
+		for (const group of GROUPS) {
+			const ids = data.groups[group] ?? [];
+
+			for (const [index, id] of ids.entries()) {
+				if (ownedIds.has(id)) {
+					updates.push({ id, tier: group, position: index });
+				}
+			}
+		}
+
+		if (updates.length) {
+			const values = sql.join(
+				updates.map(
+					(update) => sql`(${update.id}::uuid, ${update.tier}, ${update.position}::int)`,
+				),
+				sql`, `,
+			);
+
+			await db.execute(sql`
+				UPDATE ${tierListTrack} AS t
+				SET
+					tier = v.tier,
+					"position" = v."position"
+				FROM
+					(VALUES ${values})
+				AS
+					v (id, tier, "position")
+				WHERE
+					t.id = v.id AND
+					t.list_id = ${list.id}::uuid
+			`);
+		}
+
+		await db.update(tierList).set({ updatedAt: new Date() }).where(eq(tierList.id, list.id));
+
+		return updates.length;
 	},
 );
 

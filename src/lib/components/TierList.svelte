@@ -15,7 +15,7 @@
 	import Tier from "./Tier.svelte";
 	import TierPool from "./TierPool.svelte";
 	import AlbumPicker from "./AlbumPicker.svelte";
-	import { removeTrack, type List } from "#lib/list.remote";
+	import { removeTrack, saveList, type List } from "#lib/list.remote";
 
 	interface Props {
 		list: List;
@@ -26,6 +26,9 @@
 
 	const tracksById = $derived(new Map(tracks.map((t) => [t.id, t])));
 	let groups = $derived(group(tracks));
+
+	let saveState = $state<"idle" | "saving" | "saved" | "error">("idle");
+	let saveTimer: ReturnType<typeof setTimeout> | undefined = undefined;
 
 	function group(tracks: Track[]) {
 		const groups = [..."SABCDF", "pool"].reduce<Record<string, string[]>>(
@@ -38,6 +41,20 @@
 		}
 
 		return groups;
+	}
+
+	function scheduleSave() {
+		clearTimeout(saveTimer);
+		saveState = "saving";
+
+		saveTimer = setTimeout(async () => {
+			try {
+				await saveList({ slug: list.slug, groups });
+				saveState = "saved";
+			} catch {
+				saveState = "error";
+			}
+		}, 800);
 	}
 
 	function resolveTracks(ids: string[]) {
@@ -55,6 +72,7 @@
 	}}
 	onDragEnd={(event) => {
 		groups = move(groups, event);
+		scheduleSave();
 	}}
 >
 	<div class="flex-1">
