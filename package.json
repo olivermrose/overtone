@@ -24,6 +24,7 @@
 	"dependencies": {
 		"@dnd-kit/helpers": "^0.5.0",
 		"@dnd-kit/svelte": "^0.5.0",
+		"@spotify/web-api-ts-sdk": "^1.2.0",
 		"geist-svelte": "^1.0.2",
 		"nanoid": "^6.0.1",
 		"runed": "^0.37.1",

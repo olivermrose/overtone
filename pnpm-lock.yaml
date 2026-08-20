@@ -222,6 +222,9 @@ importers:
       '@dnd-kit/svelte':
         specifier: ^0.5.0
         version: 0.5.0(svelte@5.56.9)
+      '@spotify/web-api-ts-sdk':
+        specifier: ^1.2.0
+        version: 1.2.0
       geist-svelte:
         specifier: ^1.0.2
         version: 1.0.2(svelte@5.56.9)
@@ -1357,6 +1360,9 @@ packages:
 
   '@rolldown/pluginutils@1.0.1':
     resolution: {integrity: sha512-2j9bGt5Jh8hj+vPtgzPtl72j0yRxHAyumoo6TNfAjsLB04UtpSvPbPcDcBMxz7n+9CYB0c1GxQFxYRg2jimqGw==}
+
+  '@spotify/web-api-ts-sdk@1.2.0':
+    resolution: {integrity: sha512-JUaebva3Ohwo5I5tuTqyW/FKGOMbb40YevJMySAOINRxP7qQ/AMjBzfJx0zeO6yS+wAPfQSoGNsZaUggHw8vsA==}
 
   '@standard-schema/spec@1.1.0':
     resolution: {integrity: sha512-l2aFy5jALhniG5HgqrD6jXLi/rUWrKvqN/qJx6yoJsgKhblVd+iqqU4RCXavm/jPityDo5TCvKMnpjKnOriy0w==}
@@ -3551,6 +3557,8 @@ snapshots:
   '@preact/signals-core@1.14.4': {}
 
   '@rolldown/pluginutils@1.0.1': {}
+
+  '@spotify/web-api-ts-sdk@1.2.0': {}
 
   '@standard-schema/spec@1.1.0': {}
 
