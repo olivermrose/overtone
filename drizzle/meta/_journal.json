@@ -15,6 +15,13 @@
 			"when": 1786820098790,
 			"tag": "0001_black_major_mapleleaf",
 			"breakpoints": true
+		},
+		{
+			"idx": 2,
+			"version": "7",
+			"when": 1787246124342,
+			"tag": "0002_aberrant_black_crow",
+			"breakpoints": true
 		}
 	]
 }

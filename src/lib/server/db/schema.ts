@@ -21,7 +21,7 @@ export const tierList = pgTable(
 		createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
 		updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
 	},
-	(t) => [index("tier_list_user_idx").on(t.userId)],
+	(t) => [index("tier_list_user_idx").on(t.userId, t.updatedAt.desc())],
 );
 
 export const tierListTrack = pgTable(
@@ -46,7 +46,7 @@ export const tierListTrack = pgTable(
 		position: integer("position").notNull(),
 	},
 	(t) => [
-		index("tier_list_track_list_idx").on(t.listId),
+		index("tier_list_track_list_idx").on(t.listId, t.position),
 		unique("tier_list_track_canonical").on(t.listId, t.normalizedName),
 	],
 );
