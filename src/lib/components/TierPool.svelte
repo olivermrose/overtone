@@ -17,7 +17,7 @@
 	});
 </script>
 
-<details class="sticky bottom-0 z-20 border-t border-neutral-800 bg-black" open>
+<details class="border-t border-neutral-800 bg-black" open>
 	<summary class="group flex cursor-pointer items-center gap-3 bg-neutral-900 px-2 py-2 text-xs">
 		<span
 			class="text-neutral-400 uppercase group-hover:text-white before:content-['▲_'] in-open:before:content-['▼_']"
