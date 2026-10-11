@@ -7,6 +7,7 @@ import { tierList, tierListTrack } from "./server/db/schema";
 import { and, asc, desc, eq, getTableColumns, inArray, sql } from "drizzle-orm";
 import { getAlbumTracks } from "./server/spotify";
 import { GROUPS } from "#lib";
+import { dedupeToCanonical, normalizeTrackName } from "./normalization.ts";
 
 export type List = (ReturnType<Awaited<typeof getList>>["current"] & {})["list"];
 
@@ -212,36 +213,27 @@ export const addTracks = command(
 				a.trackNumber - b.trackNumber,
 		);
 
-		// The same track name can arrive twice in one batch; keep the first,
-		// since the unique index rejects the rest.
-		const seen = new Set<string>();
+		// The same song can arrive as several releases, so only keep one
+		// canonical recording per normalized name. Songs already in the list
+		// are skipped by the unique index.
 		let position = list.nextPosition;
 
-		const rows = tracks
-			.filter((t) => {
-				if (seen.has(t.name)) return false;
-				seen.add(t.name);
+		const rows = dedupeToCanonical(tracks).map((t) => ({
+			tier: "pool",
+			listId: list.id,
+			trackId: t.trackId,
+			uri: t.uri,
+			name: t.name,
+			normalizedName: normalizeTrackName(t.name),
+			albumId: t.albumId,
+			albumName: t.albumName,
+			albumReleaseDate: t.albumReleaseDate,
+			artworkUrl: t.artworkUrl,
+			durationMs: t.durationMs,
+			position: position++,
+		}));
 
-				return true;
-			})
-			.map((t) => ({
-				tier: "pool",
-				listId: list.id,
-				trackId: t.trackId,
-				uri: t.uri,
-				name: t.name,
-				normalizedName: t.name,
-				albumId: t.albumId,
-				albumName: t.albumName,
-				albumReleaseDate: t.albumReleaseDate,
-				artworkUrl: t.artworkUrl,
-				durationMs: t.durationMs,
-				position: position++,
-			}));
-
-		if (!rows.length) {
-			return 0;
-		}
+		if (!rows.length) return 0;
 
 		const inserted = await db
 			.insert(tierListTrack)

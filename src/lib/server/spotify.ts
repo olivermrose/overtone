@@ -1,12 +1,13 @@
 import { SpotifyApi } from "@spotify/web-api-ts-sdk";
 import { SPOTIFY_CLIENT_ID, SPOTIFY_CLIENT_SECRET } from "$app/env/private";
+import type { ReleaseGroup } from "../normalization.ts";
 
 export const spotify = SpotifyApi.withClientCredentials(SPOTIFY_CLIENT_ID, SPOTIFY_CLIENT_SECRET, [
 	"playlist-modify-public",
 	"playlist-modify-private",
 ]);
 
-export async function getAlbumTracks(ids: string[], groups: Record<string, string> = {}) {
+export async function getAlbumTracks(ids: string[], groups: Record<string, ReleaseGroup> = {}) {
 	const tracks = [];
 
 	for (let i = 0; i < ids.length; i += 20) {
@@ -34,7 +35,7 @@ export async function getAlbumTracks(ids: string[], groups: Record<string, strin
 					name: track.name,
 					albumId: album.id,
 					albumName: album.name,
-					albumGroup: groups[album.id] ?? album.album_type,
+					albumGroup: groups[album.id] ?? (album.album_type as ReleaseGroup),
 					albumReleaseDate: album.release_date,
 					artworkUrl,
 					durationMs: track.duration_ms,
