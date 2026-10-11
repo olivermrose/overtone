@@ -43,11 +43,11 @@
 		/>
 	{/if}
 
-	<span
-		class="absolute inset-x-0 bottom-0 line-clamp-2 bg-linear-to-t from-black/90 to-transparent px-1 pt-3 pb-1 text-[10px] leading-tight wrap-break-word"
+	<div
+		class="absolute inset-x-0 bottom-0 bg-linear-to-t from-black/90 to-transparent px-1 pt-3 pb-1 text-[10px] leading-tight"
 	>
-		{track.name}
-	</span>
+		<span class="line-clamp-2 wrap-break-word">{track.name}</span>
+	</div>
 
 	{#if onremove}
 		<button
