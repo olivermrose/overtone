@@ -16,6 +16,7 @@
 	import TierPool from "./TierPool.svelte";
 	import AlbumPicker from "./AlbumPicker.svelte";
 	import { removeTrack, saveList, type List } from "#lib/list.remote";
+	import { GROUPS } from "#lib";
 
 	interface Props {
 		list: List;
@@ -31,10 +32,7 @@
 	let saveTimer: ReturnType<typeof setTimeout> | undefined = undefined;
 
 	function group(tracks: Track[]) {
-		const groups = [..."SABCDF", "pool"].reduce<Record<string, string[]>>(
-			(g, t) => ({ ...g, [t]: [] }),
-			{},
-		);
+		const groups = GROUPS.reduce<Record<string, string[]>>((g, t) => ({ ...g, [t]: [] }), {});
 
 		for (const track of tracks.toSorted((a, b) => a.position - b.position)) {
 			groups[track.tier]?.push(track.id);
